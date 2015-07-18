@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>ninja.js - hackable chrome console game</title>
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+        <script type="text/javascript" src="scripts/ninja.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                var clickCount = 0;
+                var startTime = -1;
+                var endTime = -1;
+                var finish = false;
+
+                var disableSelection = function(target) {
+                    if (typeof target.onselectstart!="undefined") //IE route
+                        target.onselectstart=function(){return false}
+                    else if (typeof target.style.MozUserSelect!="undefined") //Firefox route
+                        target.style.MozUserSelect="none"
+                    else //All other route (ie: Opera)
+                        target.onmousedown=function(){return false}
+                    target.style.cursor = "default"
+                };
+
+                disableSelection(document.getElementById("body"));
+
+                var updateInfo = function() {
+                    $("#level").html("level : " + ninja.lookYourSelf().level);
+                    $("#damage").html("damage : " + ninja.lookYourSelf().damage);
+                    $("#criticChange").html("criticChange : %" + ninja.lookYourSelf().criticChange);
+                    $("#critic").html("critic : %" + (100+ninja.lookYourSelf().critic));
+                }
+
+                ninja.display("you");
+                updateInfo();
+
+                $("#you").click(function() {
+                    if(finish) {
+                        return;
+                    }
+                    if(clickCount == 0) {
+                        startTime = new Date().getTime();
+                    }
+                    if(typeof ninja === "undefined") {
+                        endTime = new Date().getTime();
+                        finish = true;
+                        $("#hit").html("Win ^,^");
+                        alert(((endTime - startTime)/1000) + "sn!");
+                    }
+                    var damage = ninja.attackToEnemy();
+                    $("#hit").html(parseInt(damage) + "dmg !");
+                    //
+                    updateInfo();
+                });
+            });
+        </script>
+        <style>
+            @import url(http://fonts.googleapis.com/css?family=Geo);
+
+            body {
+                background-color : #333;
+            }
+
+            #enemy {
+                margin: 15px;
+                text-align: center;
+                border-style: dotted;
+                border-color: #776E65 transparent #776E65 transparent;
+                border-width: 15px;
+            }
+
+            #info {
+                margin: 15px;
+                text-align: center;
+                font-size:36px;
+                color:#f9f6f2;
+                font-family: 'Geo', sans-serif;
+            }
+
+            #you {
+                margin: 15px;
+            }
+
+            .info {
+                margin-right: 36px;
+            }
+
+            #speech {
+                position:relative;
+                width:180px;
+                height:40px;
+                margin:10px 30%;
+                background:#8bae21;
+                font-size:30px;
+                font-family: 'Geo', sans-serif;
+                color:#fff;
+            }
+
+            li {
+                list-style-type:none;
+                border-style: solid;
+                border-width: 0 20px 20px 0;
+                border-color: transparent #8bae21 transparent transparent;
+            }
+
+        </style>
+    </head>
+    <body id="body">
+        <div id="info">
+            <span id="level" class="info"></span>
+            <span id="damage" class="info"></span>
+            <span id="criticChange" class="info"></span>
+            <span id="critic" class="info"></span>
+        </div>
+        <div id="enemy">
+            <div id="speech"><span id="hit">:)</span>
+                <li></li>
+            </div>
+            <canvas id="you" width="300" height="300"></canvas>
+        </div>
+    </body>
+</html>
